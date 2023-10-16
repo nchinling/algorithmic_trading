@@ -1,7 +1,5 @@
-import datetime
 import yfinance as yf
-import pandas as pd
-import matplotlib.pyplot as plt
+
 
 # create list of stocks
 tickers = ["AMZN", "MSFT", "GOOG", "D05.SI", "BABA" ]
