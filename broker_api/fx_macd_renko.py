@@ -1,9 +1,9 @@
-# =============================================================================
-# Automated trading script I - MACD
-# Author : Mayank Rasu
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Nov 28 19:16:18 2023
 
-# Please report bug/issues in the Q&A section
-# =============================================================================
+@author: nchin
+"""
 
 
 import MetaTrader5 as mt5
@@ -15,14 +15,21 @@ from stocktrends import Renko
 import time
 import copy
 
-os.chdir(r"C:\Users\Mayank\OneDrive\Udemy\MT5 Algorithmic Trading") #path where login credentials and server details
-key = open("key.txt","r").read().split()
+os.chdir(r"C:\Users\nchin\OneDrive\Desktop\Programming\keys") #path where login credentials and server details
+key = open("mt5_keys.txt","r").read().split()
 path = r"C:\Program Files\MetaTrader 5\terminal64.exe"
-
-
-# establish MetaTrader 5 connection to a specified trading account
+ 
+# connect to MetaTrader 5. Supply path, login, key and server
 if mt5.initialize(path=path,login=int(key[0]), password=key[1], server=key[2]):
     print("connection established")
+# if not mt5.initialize(path=path, login="", server="MetaQuotes-Demo", password=""):
+#     print("initialize() failed")
+#     mt5.shutdown()
+ 
+# request connection status and parameters
+print("Successfully connected to: ", mt5.terminal_info())
+# get data on MetaTrader 5 version
+print("MetaTrader 5 version: ", mt5.version())
 
 #defining strategy parameters
 pairs = ['EURUSD','GBPUSD','USDCHF','AUDUSD','USDCAD'] #currency pairs to be included in the strategy
@@ -135,14 +142,18 @@ def trade_signal(MERGED_DF,l_s):
             signal = "Sell"
             
     elif l_s == "long":
+        # close existing long and short sell
         if df["bar_num"].tolist()[-1]<=-2 and df["macd"].tolist()[-1]<df["macd_sig"].tolist()[-1]:
             signal = "Close_Sell"
+        # close existing long postion if reversal in macd trend
         elif df["macd"].tolist()[-1]<df["macd_sig"].tolist()[-1] and df["macd"].tolist()[-2]>df["macd_sig"].tolist()[-2]:
             signal = "Close"
             
     elif l_s == "short":
+        # close existing short and buy
         if df["bar_num"].tolist()[-1]>=2 and df["macd"].tolist()[-1]>df["macd_sig"].tolist()[-1]:
             signal = "Close_Buy"
+        # close existing position if reversal in macd trend
         elif df["macd"].tolist()[-1]>df["macd_sig"].tolist()[-1] and df["macd"].tolist()[-2]<df["macd_sig"].tolist()[-2]:
             signal = "Close"
     return signal
